@@ -1,10 +1,11 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(TriggerZone), typeof(TriggerZone))]
 public class AudioPlayer : MonoBehaviour
 {
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private TriggerZone _triggerZone;
     [SerializeField] private float _minVolume;
     [SerializeField, Min(0.1f)] private float _maxVolume;
     [SerializeField] private float _step;
@@ -19,31 +20,31 @@ public class AudioPlayer : MonoBehaviour
         _audioSource.volume = _minVolume;
     }
 
+    private void OnEnable()
+    {
+        _triggerZone.PlayerDetected += Activate;
+        _triggerZone.PlayerEscape += Deactivate;
+    }
+
     private void OnDisable()
     {
-        _coroutine = null;
+        _triggerZone.PlayerDetected -= Activate;
+        _triggerZone.PlayerEscape -= Deactivate;
     }
 
-    private void OnTriggerEnter(Collider collision)
+    private void Activate()
     {
-        if (collision.TryGetComponent<TriggerZone>(out TriggerZone triggerZone))
-        {
-            StopCoroutine();
+        StopCoroutine();
 
-            _audioSource.clip = triggerZone.AudioClip;
-            _audioSource.Play();
-            _coroutine = StartCoroutine(ChangeVolume(_maxVolume));
-        }
+        _audioSource.Play();
+        _coroutine = StartCoroutine(ChangeVolume(_maxVolume));
     }
 
-    private void OnTriggerExit(Collider collision)
+    private void Deactivate()
     {
-        if (collision.TryGetComponent<TriggerZone>(out TriggerZone triggerZone))
-        {
-            StopCoroutine();
+        StopCoroutine();
 
-            _coroutine = StartCoroutine(ChangeVolume(_minVolume));
-        }
+        _coroutine = StartCoroutine(ChangeVolume(_minVolume));
     }
 
     private void StopCoroutine()
@@ -54,8 +55,7 @@ public class AudioPlayer : MonoBehaviour
 
     private IEnumerator ChangeVolume(float targetVolume)
     {
-
-        while (Math.Abs(_audioSource.volume - targetVolume) > Mathf.Epsilon)
+        while (_audioSource.volume != targetVolume)
         {
             _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, targetVolume, _step * Time.deltaTime);
 

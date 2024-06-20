@@ -8,12 +8,12 @@ public class Movement : MonoBehaviour
 
     private CharacterController _characterController;
 
-    void Start()
+    private void Start()
     {
         _characterController = GetComponent<CharacterController>();
     }
 
-    void Update()
+    private void Update()
     {
         Move();
     }

@@ -10,7 +10,7 @@ public class MouseLook : MonoBehaviour
 
     private float _rotationX = 0;
 
-    void Start()
+    private void Start()
     {
         if (_MinRotationX > _MaxRotationX)
             _MinRotationX = _MaxRotationX;
@@ -18,7 +18,7 @@ public class MouseLook : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
+    private void Update()
     {
         Rotation();
     }
